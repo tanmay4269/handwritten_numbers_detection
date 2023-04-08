@@ -23,6 +23,7 @@ def train_example(input_layer, activations, w, ideal_output):
     # layer -1 is input layer
     
     activations[0] = input_layer
+    activations[0] = activations[0].reshape((784,1))
 
     z = np.array([
         np.zeros((16,1)),
@@ -54,14 +55,27 @@ def train_example(input_layer, activations, w, ideal_output):
         w_next_l = w[0][l+1]
         delta[l] = np.matmul(w_next_l.T, delta[l+1]) * activation_function_prime(z[l])
     
-    print(delta[0].shape)
-    print(z[0].shape)
+    return delta
 
+def train_dataset(train_images, train_labels, activations, w, lr):
+    # not the most efficient way
+    deltas = [] # has delta for each training sample
+    m = 0 # size of "deltas" array
 
-def train_dataset(train_images, train_labels, activations, w):
+    # getting delta for each training sample
     for i in range(len(train_images)):
-        train_example(train_images[i], activations, w, train_labels[i])
-        break
+        deltas.append(train_example(train_images[i], activations, w, train_labels[i]))
+        m += 1
+
+    # gradient decent
+    for l in [3, 2, 1]:
+        sum_a_d = 0
+
+        for x in range(m):
+            pass # find sum_a_d
+
+        w[0][l] = w[0][l] - (lr / m) * sum_a_d
+            
 
 
 if __name__ == "__main__":
@@ -93,4 +107,4 @@ if __name__ == "__main__":
         np.array([b_1, b_2, b_3])
     ])
 
-    train_dataset(train_images, train_labels, activations, w)
+    train_dataset(train_images, train_labels, activations, w, lr=0.01)
