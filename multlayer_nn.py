@@ -2,10 +2,13 @@
 make this into a jupyter notebook thing, learn how to use that
 """
 
-
-
 import idx2numpy
 from utils import *
+
+#################################################################################################################################################################################
+#########################################################################       GET DATA         ################################################################################
+#################################################################################################################################################################################
+
 
 train_images = idx2numpy.convert_from_file("data/train-images.idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("data/train-labels.idx1-ubyte")
@@ -13,9 +16,9 @@ test_images = idx2numpy.convert_from_file("data/test-images.idx3-ubyte")
 test_labels = idx2numpy.convert_from_file("data/test-labels.idx1-ubyte")
 
 train_images = np.reshape(train_images, (train_images.shape[0], -1)) / 255
-train_labels = np.reshape(train_labels, (train_labels.shape[0], -1)) / 255
+train_labels = np.reshape(train_labels, (train_labels.shape[0], -1))
 test_images = np.reshape(test_images, (test_images.shape[0], -1)) / 255
-test_labels = np.reshape(test_labels, (test_labels.shape[0], -1)) / 255
+test_labels = np.reshape(test_labels, (test_labels.shape[0], -1))
 
 """
 4 layers:
@@ -24,6 +27,10 @@ test_labels = np.reshape(test_labels, (test_labels.shape[0], -1)) / 255
 2. h2       (16)
 3. output   (10)
 """
+
+#################################################################################################################################################################################
+#########################################################################       TRAIN NN         ################################################################################
+#################################################################################################################################################################################
 
 def train_example(input_layer, activations, w, ideal_output):
     # layer -1 is input layer
@@ -99,6 +106,10 @@ def train_dataset(train_images, train_labels, activations, w, lr):
         w[1][l-1] = w[1][l-1] - (lr / m) * sum_d
 
 
+#################################################################################################################################################################################
+#########################################################################        TEST NN         ################################################################################
+#################################################################################################################################################################################
+
 def test_nn(test_inputs, test_labels, w, activations):
     count = 0
 
@@ -121,14 +132,18 @@ def test_nn(test_inputs, test_labels, w, activations):
 
             activations[l+1] = activation_function(z[l])
 
-        print(activations[3])
-        
+        # print(activations[3])
+        # print(np.argmax(activations[3]), test_labels[i])
+
         if np.argmax(activations[3]) == test_labels[i]:
             count += 1
 
-    print(count / len(test_inputs))
+    print(count / len(test_inputs), len(test_inputs))
 
-    
+
+#################################################################################################################################################################################
+#####################################################################       FINAL OUTPUT         ################################################################################
+#################################################################################################################################################################################
 
 
 if __name__ == "__main__":
@@ -160,5 +175,5 @@ if __name__ == "__main__":
         [b_1, b_2, b_3]
     ]
 
-    # train_dataset(train_images, train_labels, activations, w, lr=0.01)
+    train_dataset(train_images, train_labels, activations, w, lr=0.01)
     test_nn(test_images, test_labels, w, activations)
