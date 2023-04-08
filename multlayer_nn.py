@@ -58,7 +58,7 @@ def train_example(input_layer, activations, w, ideal_output):
     return delta
 
 def train_dataset(train_images, train_labels, activations, w, lr):
-    # not the most efficient way
+    """not the most efficient way"""
     deltas = [] # has delta for each training sample
     m = 0 # size of "deltas" array
 
@@ -66,13 +66,17 @@ def train_dataset(train_images, train_labels, activations, w, lr):
     for i in range(len(train_images)):
         deltas.append(train_example(train_images[i], activations, w, train_labels[i]))
         m += 1
+        break
 
     # gradient decent
     for l in [3, 2, 1]:
-        sum_a_d = 0
+        sum_a_d = np.empty((w.shape))
 
         for x in range(m):
-            pass # find sum_a_d
+            sum_a_d += np.matmult(delta[l], activations[l-1].T)
+
+        print(sum_a_d)
+        break
 
         w[0][l] = w[0][l] - (lr / m) * sum_a_d
             
@@ -88,7 +92,7 @@ if __name__ == "__main__":
 
     # apart from input layer
     activations = np.array([
-        0,                # input layer 
+        np.array([0]),
         np.zeros((16,1)), # hidden layer 1
         np.zeros((16,1)), # hidden layer 2
         np.zeros((10,1))  # output layer
