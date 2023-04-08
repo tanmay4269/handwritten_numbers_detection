@@ -1,3 +1,9 @@
+"""
+make this into a jupyter notebook thing, learn how to use that
+"""
+
+
+
 import idx2numpy
 from utils import *
 
@@ -55,7 +61,7 @@ def train_example(input_layer, activations, w, ideal_output):
         w_next_l = w[0][l+1]
         delta[l] = np.matmul(w_next_l.T, delta[l+1]) * activation_function_prime(z[l])
     
-    return delta
+    return delta  # 3 rows for each layer
 
 def train_dataset(train_images, train_labels, activations, w, lr):
     """not the most efficient way"""
@@ -68,14 +74,26 @@ def train_dataset(train_images, train_labels, activations, w, lr):
         m += 1
 
     # gradient decent
-    for l in [2, 1]:
-        sum_a_d = np.empty((w[0][l].shape))
+    """
+    1. loop through l = L, L-1, ..., 2
+    L = 4
+    in py => 3, 2, 1
 
-        for x in range(m):
-            sum_a_d += np.matmul(deltas[x][l], activations[l-1].T)
+    """
+    for l in [3, 2, 1]:
+        sum_d = np.zeros(w[0][l-1].shape)   # here l-1 doesnt mean (l-1)th layer, its the index where the weights are stored
+        sum_d_a = np.zeros((w[0][l-1].shape)) 
 
-        w[0][l] = w[0][l] - (lr / m) * sum_a_d
-            
+        for i in range(m):  # for each training example
+            sum_d = deltas[i][l-1]  # our lth layer is computer's (l-1)th index
+
+            """
+            dim(deltas[i][l-1])
+            """
+            sum_d_a = np.matmul(deltas[i][l-1], activations[l-1].T)
+
+        w[0][l-1] = w[0][l-1] - (lr / m) * sum_d_a
+        w[1][l-1] = w[1][l-1] - (lr / m) * sum_d
 
 
 if __name__ == "__main__":
