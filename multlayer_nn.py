@@ -88,12 +88,47 @@ def train_dataset(train_images, train_labels, activations, w, lr):
             sum_d = deltas[i][l-1]  # our lth layer is computer's (l-1)th index
 
             """
-            dim(deltas[i][l-1])
+            dim(deltas[i][l-1].T) = 1x784   for l = 1
+            dim(deltas[i][l-1]) =   16x1    for l = 1
             """
+            # sum_d_a = np.matmul(activations[l-1].T, deltas[i][l-1])
+
             sum_d_a = np.matmul(deltas[i][l-1], activations[l-1].T)
 
         w[0][l-1] = w[0][l-1] - (lr / m) * sum_d_a
         w[1][l-1] = w[1][l-1] - (lr / m) * sum_d
+
+
+def test_nn(test_inputs, test_labels, w, activations):
+    count = 0
+
+    for i in range(len(test_inputs)):
+        activations[0] = test_inputs[i]
+        activations[0] = activations[0].reshape((784,1))
+
+        z = [
+            np.zeros((16,1)),
+            np.zeros((16,1)),
+            np.zeros((10,1)),
+        ]
+
+        for l in [0, 1, 2]: 
+            a_l = activations[l]    # 784 x 1
+            w_l = w[0][l]           # 16 x 784
+            b_l = w[1][l]           # 16 x 1
+
+            z[l] = np.matmul(w_l, a_l) + b_l
+
+            activations[l+1] = activation_function(z[l])
+
+        print(activations[3])
+        
+        if np.argmax(activations[3]) == test_labels[i]:
+            count += 1
+
+    print(count / len(test_inputs))
+
+    
 
 
 if __name__ == "__main__":
@@ -125,4 +160,5 @@ if __name__ == "__main__":
         [b_1, b_2, b_3]
     ]
 
-    train_dataset(train_images, train_labels, activations, w, lr=0.01)
+    # train_dataset(train_images, train_labels, activations, w, lr=0.01)
+    test_nn(test_images, test_labels, w, activations)
