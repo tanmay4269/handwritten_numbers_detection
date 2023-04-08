@@ -25,11 +25,11 @@ def train_example(input_layer, activations, w, ideal_output):
     activations[0] = input_layer
     activations[0] = activations[0].reshape((784,1))
 
-    z = np.array([
+    z = [
         np.zeros((16,1)),
         np.zeros((16,1)),
         np.zeros((10,1)),
-    ])
+    ]
 
     for l in [0, 1, 2]: 
         a_l = activations[l]    # 784 x 1
@@ -42,11 +42,11 @@ def train_example(input_layer, activations, w, ideal_output):
 
     # finding last layer's delta
     del_C_wrt_a = ideal_output - activations[3]
-    delta = np.array([
+    delta = [
         np.zeros((16, 1)),
         np.zeros((16, 1)),
         np.zeros((10, 1))
-    ]) 
+    ]
 
     delta[2] = del_C_wrt_a * activation_function_prime(z[2]) # last layer
 
@@ -70,10 +70,10 @@ def train_dataset(train_images, train_labels, activations, w, lr):
 
     # gradient decent
     for l in [3, 2, 1]:
-        sum_a_d = np.empty((w.shape))
+        sum_a_d = np.empty((w[0][l-1].shape))
 
         for x in range(m):
-            sum_a_d += np.matmult(delta[l], activations[l-1].T)
+            sum_a_d += np.matmul(deltas[x][l-1], activations[l-1].T)
 
         print(sum_a_d)
         break
@@ -91,12 +91,12 @@ if __name__ == "__main__":
     """
 
     # apart from input layer
-    activations = np.array([
-        np.array([0]),
+    activations = [
+        np.zeros((784,1)),# input layer
         np.zeros((16,1)), # hidden layer 1
         np.zeros((16,1)), # hidden layer 2
         np.zeros((10,1))  # output layer
-    ])
+    ]
 
     w_01 = np.random.uniform(low=-1, high=1, size=(16,784))
     w_12 = np.random.uniform(low=-1, high=1, size=(16,16))
@@ -106,9 +106,9 @@ if __name__ == "__main__":
     b_2 = np.random.uniform(low=-1, high=1, size=(16,1))
     b_3 = np.random.uniform(low=-1, high=1, size=(10,1))
 
-    w = np.array([
-        np.array([w_01, w_12, w_23]), 
-        np.array([b_1, b_2, b_3])
-    ])
+    w = [
+        [w_01, w_12, w_23], 
+        [b_1, b_2, b_3]
+    ]
 
     train_dataset(train_images, train_labels, activations, w, lr=0.01)
