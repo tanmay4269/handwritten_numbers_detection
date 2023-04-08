@@ -158,7 +158,7 @@ def test_nn(test_inputs, test_labels, w, activations):
 
             activations[l+1] = sigmoid(z[l])
 
-        if np.argmax(activations[3]) == test_labels[i]:
+        if np.argmax(activations[3]) == np.argmax(test_labels[i]):
             count += 1
 
     print(f"accuracy = {count / total} i.e. {count} out of {total}")
@@ -168,8 +168,17 @@ def test_nn(test_inputs, test_labels, w, activations):
 #####################################################################       FINAL OUTPUT         ################################################################################
 #################################################################################################################################################################################
 
+def one_hot_encode(labels):
+    result = np.zeros((labels.shape[0], 10))
+    for i, label in enumerate(labels):
+        result[i, label] = 1
+    return result
+
 if __name__ == "__main__":
     activations, w = init_vars()
+
+    train_labels = one_hot_encode(train_labels)
+    test_labels = one_hot_encode(test_labels)
 
     test_nn(test_images, test_labels, w, activations)
     train_dataset(train_images, train_labels, activations, w, lr=0.1)
