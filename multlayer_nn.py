@@ -91,7 +91,7 @@ def train_example(input_layer, activations, w, ideal_output):
         # here we actually did find lth layer's z, a 
 
     ################################################ OUTPUT ERROR #######################################################
-    del_C_wrt_a = ideal_output - activations[3]  # from defn
+    del_C_wrt_a = ideal_output.reshape((10,1)) - activations[3]  # from defn
 
     # initialise deltas
     deltas = [
@@ -127,7 +127,7 @@ def train_dataset(train_images, train_labels, activations, w, lr):
             sum_d_a += np.matmul(deltas[i][l-1], activations[l-1].T)
             sum_d   += deltas[i][l-1]  # our lth layer is computer's (l-1)th index
 
-        w[0][l-1] -= (lr / m) * sum_d_a
+        w[0][l-1] -= (lr / m) * sum_d_a 
         w[1][l-1] -= (lr / m) * sum_d
 
 
@@ -161,7 +161,7 @@ def test_nn(test_inputs, test_labels, w, activations):
         if np.argmax(activations[3]) == np.argmax(test_labels[i]):
             count += 1
 
-    print(f"accuracy = {count / total} i.e. {count} out of {total}")
+    print(f"accuracy = {count*100 / total}% i.e. {count} out of {total}")
 
 
 #################################################################################################################################################################################
