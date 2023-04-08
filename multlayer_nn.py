@@ -3,7 +3,18 @@ make this into a jupyter notebook thing, learn how to use that
 """
 
 import idx2numpy
-from utils import *
+import numpy as np
+# from utils import *
+
+#################################################################################################################################################################################
+#########################################################################         UTILS        ##################################################################################
+#################################################################################################################################################################################
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_prime(x):
+    return sigmoid(x) * (1 - sigmoid(x))
 
 #################################################################################################################################################################################
 #########################################################################       GET DATA         ################################################################################
@@ -33,27 +44,40 @@ test_labels = np.reshape(test_labels, (test_labels.shape[0], -1))
 #################################################################################################################################################################################
 
 def train_example(input_layer, activations, w, ideal_output):
-    # layer -1 is input layer
+    """
+    For each training example, we must go through each of the following steps:
+    1. Feedforward: 
+        - find z and a for each layer (layer indices: 1, 2, 3)
+    2. Output error:
+        - delta for last layer (the output layer)
+    3. Backpropogate the error:
+        - find delta for each layer with layer indices: 2, 1
+    """
     
-    activations[0] = input_layer
+    # activations array has 3 elements, each is a layer's activation values
+    # these should always start from 0 (for activations other than input layer)
+    # only weights retain during training 
+    activations[0] = input_layer  
     activations[0] = activations[0].reshape((784,1))
 
+    # initialise z
     z = [
         np.zeros((16,1)),
         np.zeros((16,1)),
         np.zeros((10,1)),
     ]
 
+    ################################################ FEEDFORWARD #######################################################
     for l in [0, 1, 2]: 
-        a_l = activations[l]    # 784 x 1
-        w_l = w[0][l]           # 16 x 784
-        b_l = w[1][l]           # 16 x 1
+        a_l = activations[l]
+        w_l = w[0][l]
+        b_l = w[1][l]
 
         z[l] = np.matmul(w_l, a_l) + b_l
 
-        activations[l+1] = activation_function(z[l])
+        activations[l+1] = sigmoid(z[l])
 
-    # finding last layer's delta
+    ################################################ OUTPUT ERROR #######################################################
     del_C_wrt_a = ideal_output - activations[3]
     delta = [
         np.zeros((16, 1)),
@@ -61,49 +85,35 @@ def train_example(input_layer, activations, w, ideal_output):
         np.zeros((10, 1))
     ]
 
-    delta[2] = del_C_wrt_a * activation_function_prime(z[2]) # last layer
+    delta[2] = del_C_wrt_a * sigmoid_prime(z[2]) # last layer
 
-    # find delta for each layer
+    ################################################ BACKPROPOGATION #####################################################
     for l in [1, 0]:
         w_next_l = w[0][l+1]
-        delta[l] = np.matmul(w_next_l.T, delta[l+1]) * activation_function_prime(z[l])
+        delta[l] = np.matmul(w_next_l.T, delta[l+1]) * sigmoid_prime(z[l])
     
     return delta  # 3 rows for each layer
 
 def train_dataset(train_images, train_labels, activations, w, lr):
     """not the most efficient way"""
     deltas = [] # has delta for each training sample
-    m = 0 # size of "deltas" array
+    m = len(train_images)
 
     # getting delta for each training sample
-    for i in range(len(train_images)):
+    for i in range(m):
         deltas.append(train_example(train_images[i], activations, w, train_labels[i]))
-        m += 1
 
     # gradient decent
-    """
-    1. loop through l = L, L-1, ..., 2
-    L = 4
-    in py => 3, 2, 1
-
-    """
     for l in [3, 2, 1]:
         sum_d = np.zeros(w[0][l-1].shape)   # here l-1 doesnt mean (l-1)th layer, its the index where the weights are stored
         sum_d_a = np.zeros((w[0][l-1].shape)) 
 
         for i in range(m):  # for each training example
             sum_d = deltas[i][l-1]  # our lth layer is computer's (l-1)th index
-
-            """
-            dim(deltas[i][l-1].T) = 1x784   for l = 1
-            dim(deltas[i][l-1]) =   16x1    for l = 1
-            """
-            # sum_d_a = np.matmul(activations[l-1].T, deltas[i][l-1])
-
             sum_d_a = np.matmul(deltas[i][l-1], activations[l-1].T)
 
-        w[0][l-1] = w[0][l-1] - (lr / m) * sum_d_a
-        w[1][l-1] = w[1][l-1] - (lr / m) * sum_d
+        w[0][l-1] -= (lr / m) * sum_d_a
+        w[1][l-1] -= (lr / m) * sum_d
 
 
 #################################################################################################################################################################################
@@ -130,7 +140,7 @@ def test_nn(test_inputs, test_labels, w, activations):
 
             z[l] = np.matmul(w_l, a_l) + b_l
 
-            activations[l+1] = activation_function(z[l])
+            activations[l+1] = sigmoid(z[l])
 
         # print(activations[3])
         # print(np.argmax(activations[3]), test_labels[i])
@@ -138,7 +148,7 @@ def test_nn(test_inputs, test_labels, w, activations):
         if np.argmax(activations[3]) == test_labels[i]:
             count += 1
 
-    print(count / len(test_inputs), len(test_inputs))
+    print(count / len(test_inputs))
 
 
 #################################################################################################################################################################################
@@ -175,5 +185,6 @@ if __name__ == "__main__":
         [b_1, b_2, b_3]
     ]
 
-    train_dataset(train_images, train_labels, activations, w, lr=0.01)
+    test_nn(test_images, test_labels, w, activations)
+    train_dataset(train_images, train_labels, activations, w, lr=0.1)
     test_nn(test_images, test_labels, w, activations)
