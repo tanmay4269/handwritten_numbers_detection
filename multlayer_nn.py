@@ -66,17 +66,13 @@ def train_dataset(train_images, train_labels, activations, w, lr):
     for i in range(len(train_images)):
         deltas.append(train_example(train_images[i], activations, w, train_labels[i]))
         m += 1
-        break
 
     # gradient decent
-    for l in [3, 2, 1]:
-        sum_a_d = np.empty((w[0][l-1].shape))
+    for l in [2, 1]:
+        sum_a_d = np.empty((w[0][l].shape))
 
         for x in range(m):
-            sum_a_d += np.matmul(deltas[x][l-1], activations[l-1].T)
-
-        print(sum_a_d)
-        break
+            sum_a_d += np.matmul(deltas[x][l], activations[l-1].T)
 
         w[0][l] = w[0][l] - (lr / m) * sum_a_d
             
