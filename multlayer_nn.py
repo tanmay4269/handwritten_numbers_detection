@@ -180,19 +180,39 @@ if __name__ == "__main__":
     train_labels = one_hot_encode(train_labels)
     test_labels = one_hot_encode(test_labels)
 
-    test_nn(test_images, test_labels, w, activations)
-    train_dataset(train_images, train_labels, activations, w, lr=0.01)
+    # test_nn(test_images, test_labels, w, activations)
+    # train_dataset(train_images, train_labels, activations, w, lr=0.01)
     
-    for _ in range(1):
-        # alternate approach: 
-        # give subsets of training data set in each iteration 
+    # for _ in range(1):
+    #     # alternate approach: 
+    #     # give subsets of training data set in each iteration 
 
+    #     # generate a permutation of indices
+    #     perm = np.random.permutation(len(train_images))
+
+    #     # use the permutation to shuffle both arrays
+    #     train_images = train_images[perm]
+    #     train_labels = train_labels[perm]
+
+    #     train_dataset(train_images, train_labels, activations, w, lr=0.01)    
+    #     test_nn(test_images, test_labels, w, activations)
+
+    for _ in range(5):
         # generate a permutation of indices
         perm = np.random.permutation(len(train_images))
 
         # use the permutation to shuffle both arrays
         train_images = train_images[perm]
         train_labels = train_labels[perm]
+            
+        # split the dataset into 10 parts
+        num_parts = 10
+        part_size = len(train_images) // num_parts
+        parts = [train_images[i*part_size:(i+1)*part_size] for i in range(num_parts)]
+        label_parts = [train_labels[i*part_size:(i+1)*part_size] for i in range(num_parts)]
 
-        train_dataset(train_images, train_labels, activations, w, lr=0.01)    
-        test_nn(test_images, test_labels, w, activations)
+        for i in range(num_parts):
+            # use each part of the dataset in each iteration
+
+            train_dataset(parts[i], label_parts[i], activations, w, lr=0.01)
+            test_nn(test_images, test_labels, w, activations)
