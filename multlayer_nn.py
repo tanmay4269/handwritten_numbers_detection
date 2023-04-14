@@ -181,5 +181,18 @@ if __name__ == "__main__":
     test_labels = one_hot_encode(test_labels)
 
     test_nn(test_images, test_labels, w, activations)
-    train_dataset(train_images, train_labels, activations, w, lr=0.1)
-    test_nn(test_images, test_labels, w, activations)
+    train_dataset(train_images, train_labels, activations, w, lr=0.01)
+    
+    for _ in range(1):
+        # alternate approach: 
+        # give subsets of training data set in each iteration 
+
+        # generate a permutation of indices
+        perm = np.random.permutation(len(train_images))
+
+        # use the permutation to shuffle both arrays
+        train_images = train_images[perm]
+        train_labels = train_labels[perm]
+
+        train_dataset(train_images, train_labels, activations, w, lr=0.01)    
+        test_nn(test_images, test_labels, w, activations)
